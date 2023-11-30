@@ -39,6 +39,8 @@ for k in range(height):
         print(str(i.type) + " " + str(i.value) + " " + str(i.distance))
     tiles.append(row)
 
+pygame.init()
+
 # Initializing constants
 WHITE = (255, 255, 255) # empty tile (except starting tile)
 RED = (255, 0, 0) # starting tile
@@ -46,6 +48,7 @@ GRAY = (128, 128, 128) # obstacle tile
 YELLOW = (255, 255, 0) # key tile
 ORANGE = (255, 127, 0) # door tile
 BLUE = (0, 0, 255) # finish tile
+BLACK = (0, 0, 0) # text color
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 600
@@ -53,11 +56,14 @@ SCREEN_HEIGHT = 600
 TILE_WIDTH = math.floor(SCREEN_WIDTH / width)
 TILE_HEIGHT = math.floor(SCREEN_HEIGHT / height)
 
+font = pygame.font.Font("HighlandGothicFLF.ttf", 20)
+
 # Initializing surface
 surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 for i in range(height):
     for k in range(width):
+        text = font.render(str(tiles[i][k].value), True, BLACK)
         color = WHITE
         if tiles[i][k].distance == 0:
             color = RED
@@ -70,6 +76,12 @@ for i in range(height):
         elif tiles[i][k].type == 4:
             color = BLUE
         pygame.draw.rect(surface, color, pygame.Rect(TILE_WIDTH * k, TILE_HEIGHT * i + 2, TILE_WIDTH - 2, TILE_HEIGHT - 2))
+        if tiles[i][k].type == 2 or tiles[i][k].type == 3:
+            text_width = text.get_rect().width
+            text_height = text.get_rect().height
+            text_x = (TILE_WIDTH * k + TILE_WIDTH * (k + 1)) / 2 - text_width / 2
+            text_y = (TILE_HEIGHT * i + TILE_HEIGHT * (i + 1)) / 2 - text_height / 2
+            surface.blit(text, (text_x, text_y))
 
 # Drawing Rectangle
 pygame.display.flip()
