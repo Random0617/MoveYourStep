@@ -3,11 +3,12 @@ class Tile:
         self.type = type
         '''
         Type is an integer.
-        - 0 for empty cell
-        - -1 for obstacle cell
+        - -2 for obstacle cell
+        - -1 for door cell
+        - 0 for starting empty tile
+        - 1 for other empty tiles
         - 2 for key cell
-        - 3 for door cell
-        - 4 for finish cell (Mr. Thanh)
+        - 3 for finish cell (Mr. Thanh)
         '''
         self.value = value
         '''
