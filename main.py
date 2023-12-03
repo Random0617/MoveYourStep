@@ -39,10 +39,9 @@ def reset_tiles(filename, height, width):
         row_stats = input_file.readline().split(",")
         print(row_stats)
         for i in row_stats:
-            new_tile = Tile(1, 0, 999999)  # Empty tile
+            new_tile = Tile(1, 0)  # Empty tile
             if "A" in i:  # Empty tile and starting tile
                 new_tile.type = 0
-                new_tile.distance = 0
             elif "-1" in i:  # Tile is an obstacle
                 new_tile.type = -2
             elif "D" in i:  # Tile is a door
@@ -55,7 +54,7 @@ def reset_tiles(filename, height, width):
                 new_tile.type = 3
             row.append(new_tile)
         for i in row:
-            print(str(i.type) + " " + str(i.value) + " " + str(i.distance))
+            print(str(i.type) + " " + str(i.value))
         tiles.append(row)
     input_file.close()
     return tiles
@@ -73,7 +72,7 @@ def draw_state(tiles, width, height):
                 color = GRAY
             elif tiles[i][k].type == -1:
                 color = ORANGE
-            elif tiles[i][k].distance == 0:
+            elif tiles[i][k].type == 0:
                 color = RED
             elif tiles[i][k].type == 2:
                 color = YELLOW
@@ -94,7 +93,7 @@ def draw_path(tiles, path, width, height):
     draw_state(tiles, width, height)
     for i in range(len(path)):
         time.sleep(0.1)
-        tiles[path[i][0]][path[i][1]].distance = 0
+        tiles[path[i][0]][path[i][1]].type = 0
         draw_state(tiles, width, height)
 
 def level1_GCD(tiles, width, height):

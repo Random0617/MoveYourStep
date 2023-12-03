@@ -1,5 +1,5 @@
 class Tile:
-    def __init__(self, type, value, distance):
+    def __init__(self, type, value):
         self.type = type
         '''
         Type is an integer.
@@ -17,8 +17,4 @@ class Tile:
         The agent can only walk through the door with a value
         if it has the key of the same value.
         Value is set to 0 for all other spaces except keys and doors.
-        '''
-        self.distance = distance
-        '''
-        Distance from start to this tile
         '''
