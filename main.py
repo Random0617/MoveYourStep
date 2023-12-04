@@ -17,6 +17,7 @@ SCREEN_HEIGHT = 600
 
 pygame.init()
 font = pygame.font.Font("HighlandGothicFLF.ttf", 20)
+big_font = pygame.font.Font("HighlandGothicFLF.ttf", 40)
 
 def set_height_or_width(filename, k):
     input_file = open(filename, "r")
@@ -29,32 +30,28 @@ def set_height_or_width(filename, k):
 def reset_tiles(filename, width, height):
     # Get data for all tiles from the text file
     input_file = open(filename, "r")
-    sizes = input_file.readline().split(",")
-    print(str(height) + " " + str(width))
-    floor = input_file.readline()
-    print(floor)
+    input_file.readline().split(",")
+    input_file.readline()
     tiles = []
     for k in range(height):
         row = []
         row_stats = input_file.readline().split(",")
         print(row_stats)
-        for i in row_stats:
+        for i in range(width):
             new_tile = Tile(1, 0)  # Empty tile
-            if "A" in i:  # Empty tile and starting tile
+            if "A" in row_stats[i]:  # Empty tile and starting tile
                 new_tile.type = 0
-            elif "-1" in i:  # Tile is an obstacle
+            elif "-1" in row_stats[i]:  # Tile is an obstacle
                 new_tile.type = -2
-            elif "D" in i:  # Tile is a door
+            elif "D" in row_stats[i]:  # Tile is a door
                 new_tile.type = -1
                 new_tile.value = int(i[1:])
-            elif "K" in i:  # Tile is a key
+            elif "K" in row_stats[i]:  # Tile is a key
                 new_tile.type = 2
                 new_tile.value = int(i[1:])
-            elif "T" in i:  # Tile is Mr. Thanh (goal)
+            elif "T" in row_stats[i]:  # Tile is Mr. Thanh (goal)
                 new_tile.type = 3
             row.append(new_tile)
-        for i in row:
-            print(str(i.type) + " " + str(i.value))
         tiles.append(row)
     input_file.close()
     return tiles
@@ -90,11 +87,40 @@ def draw_state(tiles, width, height):
 
 
 def draw_path(tiles, path, width, height):
+    '''
+    # Path: coordinates of the cells gone traveled through, in the correct order
+    example_path = [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10],
+                    [2, 10], [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10],
+                    [10, 10], [11, 10], [12, 10], [12, 9], [12, 8], [12, 7]]
+    # Call draw_path to color the solution path (in the same form as example_path)
+    # The instructor requires that the path be shown step-by-step
+    draw_path(tiles, example_path, width, height)
+    '''
+    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    TILE_WIDTH = math.floor(SCREEN_WIDTH / width)
+    TILE_HEIGHT = math.floor(SCREEN_HEIGHT / height)
     draw_state(tiles, width, height)
-    for i in range(len(path)):
-        time.sleep(0.1)
-        tiles[path[i][0]][path[i][1]].type = 0
-        draw_state(tiles, width, height)
+    if (len(path) > 0):
+        for i in range(len(path)):
+            time.sleep(0.1)
+            tiles[path[i][0]][path[i][1]].type = 0
+            draw_state(tiles, width, height)
+        for i in range(len(path)):
+            text = font.render(str(i + 1), True, BLACK)
+            text_width = text.get_rect().width
+            text_height = text.get_rect().height
+            text_x = (TILE_WIDTH * path[i][1] + TILE_WIDTH * (path[i][1] + 1)) / 2 - text_width / 2
+            text_y = (TILE_HEIGHT * path[i][0] + TILE_HEIGHT * (path[i][0] + 1)) / 2 - text_height / 2
+            surface.blit(text, (text_x, text_y))
+        pygame.display.flip()
+    else:
+        text = big_font.render("No solution was found.", True, BLACK)
+        text_width = text.get_rect().width
+        text_height = text.get_rect().height
+        text_x = SCREEN_WIDTH / 2 - text_width / 2
+        text_y = SCREEN_HEIGHT / 2 - text_height / 2
+        surface.blit(text, (text_x, text_y))
+        pygame.display.flip()
 
 def tile_available(tiles, tile_row, tile_col, height_limit, width_limit):
     if (0 <= tile_row < height_limit and 0 <= tile_col < width_limit
@@ -176,6 +202,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[top_left[0]][top_left[1]].added_to_queue = True
                 BFS_tiles[top_left[0]][top_left[1]].distance = min(BFS_tiles[top_left[0]][top_left[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[top_left[0]][top_left[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[top_left[0]][top_left[1]].distance:
                 BFS_tiles[top_left[0]][top_left[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[top_left[0]][top_left[1]].prev_cell = [cur_x, cur_y]
@@ -191,6 +218,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[top_right[0]][top_right[1]].added_to_queue = True
                 BFS_tiles[top_right[0]][top_right[1]].distance = min(BFS_tiles[top_right[0]][top_right[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[top_right[0]][top_right[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[top_right[0]][top_right[1]].distance:
                 BFS_tiles[top_right[0]][top_right[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[top_right[0]][top_right[1]].prev_cell = [cur_x, cur_y]
@@ -206,6 +234,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[bottom_left[0]][bottom_left[1]].added_to_queue = True
                 BFS_tiles[bottom_left[0]][bottom_left[1]].distance = min(BFS_tiles[bottom_left[0]][bottom_left[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[bottom_left[0]][bottom_left[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[bottom_left[0]][bottom_left[1]].distance:
                 BFS_tiles[bottom_left[0]][bottom_left[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[bottom_left[0]][bottom_left[1]].prev_cell = [cur_x, cur_y]
@@ -221,6 +250,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[bottom_right[0]][bottom_right[1]].added_to_queue = True
                 BFS_tiles[bottom_right[0]][bottom_right[1]].distance = min(BFS_tiles[bottom_right[0]][bottom_right[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[bottom_right[0]][bottom_right[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[bottom_right[0]][bottom_right[1]].distance:
                 BFS_tiles[bottom_right[0]][bottom_right[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[bottom_right[0]][bottom_right[1]].prev_cell = [cur_x, cur_y]
@@ -232,6 +262,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[top_middle[0]][top_middle[1]].added_to_queue = True
                 BFS_tiles[top_middle[0]][top_middle[1]].distance = min(BFS_tiles[top_middle[0]][top_middle[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[top_middle[0]][top_middle[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[top_middle[0]][top_middle[1]].distance:
                 BFS_tiles[top_middle[0]][top_middle[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[top_middle[0]][top_middle[1]].prev_cell = [cur_x, cur_y]
@@ -243,6 +274,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[middle_right[0]][middle_right[1]].added_to_queue = True
                 BFS_tiles[middle_right[0]][middle_right[1]].distance = min(BFS_tiles[middle_right[0]][middle_right[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[middle_right[0]][middle_right[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[middle_right[0]][middle_right[1]].distance:
                 BFS_tiles[middle_right[0]][middle_right[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[middle_right[0]][middle_right[1]].prev_cell = [cur_x, cur_y]
@@ -254,6 +286,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[bottom_middle[0]][bottom_middle[1]].added_to_queue = True
                 BFS_tiles[bottom_middle[0]][bottom_middle[1]].distance = min(BFS_tiles[bottom_middle[0]][bottom_middle[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[bottom_middle[0]][bottom_middle[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[bottom_middle[0]][bottom_middle[1]].distance:
                 BFS_tiles[bottom_middle[0]][bottom_middle[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[bottom_middle[0]][bottom_middle[1]].prev_cell = [cur_x, cur_y]
@@ -265,6 +298,7 @@ def level1_BFS(tiles, width, height):
                 BFS_tiles[middle_left[0]][middle_left[1]].added_to_queue = True
                 BFS_tiles[middle_left[0]][middle_left[1]].distance = min(BFS_tiles[middle_left[0]][middle_left[1]].distance,
                                                                    BFS_tiles[cur_x][cur_y].distance + 1)
+                BFS_tiles[middle_left[0]][middle_left[1]].prev_cell = [cur_x, cur_y]
             if BFS_tiles[cur_x][cur_y].distance + 1 < BFS_tiles[middle_left[0]][middle_left[1]].distance:
                 BFS_tiles[middle_left[0]][middle_left[1]].distance = BFS_tiles[cur_x][cur_y].distance + 1
                 BFS_tiles[middle_left[0]][middle_left[1]].prev_cell = [cur_x, cur_y]
@@ -281,23 +315,40 @@ def level1_BFS(tiles, width, height):
             else:
                 str_result = str_result + str(BFS_tiles[i][k].distance) + " "
         print(str_result)
-    return 0
-def main():
-    input_file = "input1-level1.txt"
+    solution = []
+    if BFS_tiles[finishing_row][finishing_col].expanded:
+        cur_x = finishing_row
+        cur_y = finishing_col
+        while not(cur_x == starting_row and cur_y == starting_col):
+            solution.append([cur_x, cur_y])
+            print("Add to solution: " + str(cur_x) + " " + str(cur_y))
+            temp = BFS_tiles[cur_x][cur_y]
+            cur_x = temp.prev_cell[0]
+            cur_y = temp.prev_cell[1]
+        solution.reverse()
+    return solution
+def print_level1_BFS(input_file):
     height = set_height_or_width(input_file, 0)
     width = set_height_or_width(input_file, 1)
     tiles = reset_tiles(input_file, width, height)
     draw_state(tiles, width, height)
-    level1_BFS(tiles, width, height)
-    '''
-    # Path: coordinates of the cells gone traveled through, in the correct order
-    example_path = [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10],
-                    [2, 10], [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10],
-                    [10, 10], [11, 10], [12, 10], [12, 9], [12, 8], [12, 7]]
-    # Call draw_path to color the solution path (in the same form as example_path)
-    # The instructor requires that the path be shown step-by-step
-    draw_path(tiles, example_path, width, height)
-    '''
+    level1_BFSsolution = level1_BFS(tiles, width, height)
+    draw_path(tiles, level1_BFSsolution, width, height)
+def main():
+    input_file = "input1-level1.txt"
+    print_level1_BFS(input_file)
+    time.sleep(2)
+    input_file = "input2-level1.txt"
+    print_level1_BFS(input_file)
+    time.sleep(2)
+    input_file = "input3-level1.txt"
+    print_level1_BFS(input_file)
+    time.sleep(2)
+    input_file = "input4-level1.txt"
+    print_level1_BFS(input_file)
+    time.sleep(2)
+    input_file = "input5-level1.txt"
+    print_level1_BFS(input_file)
     running = True
     while running:
         for event in pygame.event.get():
