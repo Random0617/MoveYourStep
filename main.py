@@ -181,16 +181,6 @@ def level1_BFS(tiles, width, height):
         bottom_left = [cur_x + 1, cur_y - 1]
         bottom_middle = [cur_x + 1, cur_y]
         bottom_right = [cur_x + 1, cur_y + 1]
-        neighbors = [top_left, top_middle, top_right, middle_left, middle_right, bottom_left, bottom_middle, bottom_right]
-        # If a neighbor is available (not out of bounds) and has not been added to queue before
-        '''
-        for i in range(len(neighbors)):
-            if (tile_available(BFS_tiles, neighbors[i][0], neighbors[i][1], height_limit, width_limit) and
-                    BFS_tiles[neighbors[i][0]][neighbors[i][1]].added_to_queue == False):
-                priority_queue.append(BFS_tiles[neighbors[i][0]][neighbors[i][1]])
-                BFS_tiles[neighbors[i][0]][neighbors[i][1]].added_to_queue = True
-                print("Add to queue: " + str(neighbors[i][0]) + ", " + str(neighbors[i][1]))
-        '''
         if (tile_available(BFS_tiles, top_left[0], top_left[1], height_limit, width_limit)
                 and BFS_tiles[top_left[0]][top_left[1]].expanded == False
                 and (BFS_tiles[top_middle[0]][top_middle[1]].type == 0 or BFS_tiles[top_middle[0]][
@@ -327,6 +317,203 @@ def level1_BFS(tiles, width, height):
             cur_y = temp.prev_cell[1]
         solution.reverse()
     return solution
+def level1_UCS(tiles, width, height):
+    height_limit = height
+    width_limit = width
+    class UCS_Tile:
+        def __init__(self, row, col, type, expanded, added_to_queue, distance, prev_cell):
+            self.row = row
+            self.col = col
+            self.type = type # int: 0, 1, -2, 3
+            self.expanded = expanded # bool
+            self.added_to_queue = added_to_queue # bool
+            self.distance = distance # int
+            self.prev_cell = prev_cell # two-element array showing coordinates
+
+    UCS_tiles = []
+    starting_row = -1
+    starting_col = -1
+    finishing_row = -1
+    finishing_col = -1
+    for i in range(height):
+        row = []
+        for k in range(width):
+            UCStile = UCS_Tile(i, k, tiles[i][k].type, False, False, 999999, [-1, -1])
+            row.append(UCStile)
+            if tiles[i][k].type == 0:
+                starting_row = i
+                starting_col = k
+            if tiles[i][k].type == 3:
+                finishing_row = i
+                finishing_col = k
+        UCS_tiles.append(row)
+    print(str(starting_row) + " " + str(starting_col))
+    print(str(finishing_row) + " " + str(finishing_col))
+    priority_queue = []
+    priority_queue.append(UCS_tiles[starting_row][starting_col])
+    UCS_tiles[starting_row][starting_col].added_to_queue = True
+    UCS_tiles[starting_row][starting_col].distance = 0
+    while len(priority_queue) > 0:
+        # In this project, all moves have an equal cost.
+        # The only difference between BFS and UCS is that BFS visits the node at front of the queue,
+        # while UCS visits the unvisited node with the smallest known distance
+        popped_index = -1
+        smallest_known_distance = 999999
+        for i in range(len(priority_queue)):
+            if priority_queue[i].distance < smallest_known_distance:
+                smallest_known_distance = priority_queue[i].distance
+                popped_index = popped_index - popped_index + i
+        visiting_cell = priority_queue[popped_index]
+        UCS_tiles[visiting_cell.row][visiting_cell.col].expanded = True
+        print("Set UCS_tiles[" + str(visiting_cell.row) + "][" + str(visiting_cell.col) + "] = True")
+        priority_queue.pop(popped_index)
+        cur_x = visiting_cell.row
+        cur_y = visiting_cell.col
+        print("Start adding neighbors for " + str(cur_x) + ", " + str(cur_y))
+        top_left = [cur_x - 1, cur_y - 1]
+        top_middle = [cur_x - 1, cur_y]
+        top_right = [cur_x - 1, cur_y + 1]
+        middle_left = [cur_x, cur_y - 1]
+        middle_right = [cur_x, cur_y + 1]
+        bottom_left = [cur_x + 1, cur_y - 1]
+        bottom_middle = [cur_x + 1, cur_y]
+        bottom_right = [cur_x + 1, cur_y + 1]
+        if (tile_available(UCS_tiles, top_left[0], top_left[1], height_limit, width_limit)
+                and UCS_tiles[top_left[0]][top_left[1]].expanded == False
+                and (UCS_tiles[top_middle[0]][top_middle[1]].type == 0 or UCS_tiles[top_middle[0]][
+                    top_middle[1]].type == 1)
+                and (UCS_tiles[middle_left[0]][middle_left[1]].type == 0 or UCS_tiles[middle_left[0]][
+                    middle_left[1]].type == 1)):
+            if not UCS_tiles[top_left[0]][top_left[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[top_left[0]][top_left[1]])
+                UCS_tiles[top_left[0]][top_left[1]].added_to_queue = True
+                UCS_tiles[top_left[0]][top_left[1]].distance = min(UCS_tiles[top_left[0]][top_left[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[top_left[0]][top_left[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[top_left[0]][top_left[1]].distance:
+                UCS_tiles[top_left[0]][top_left[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[top_left[0]][top_left[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, top_right[0], top_right[1], height_limit, width_limit)
+                and UCS_tiles[top_right[0]][top_right[1]].expanded == False
+                and (UCS_tiles[top_middle[0]][top_middle[1]].type == 0 or UCS_tiles[top_middle[0]][
+                    top_middle[1]].type == 1)
+                and (UCS_tiles[middle_right[0]][middle_right[1]].type == 0 or UCS_tiles[middle_right[0]][
+                    middle_right[1]].type == 1)):
+            if not UCS_tiles[top_right[0]][top_right[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[top_right[0]][top_right[1]])
+                UCS_tiles[top_right[0]][top_right[1]].added_to_queue = True
+                UCS_tiles[top_right[0]][top_right[1]].distance = min(UCS_tiles[top_right[0]][top_right[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[top_right[0]][top_right[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[top_right[0]][top_right[1]].distance:
+                UCS_tiles[top_right[0]][top_right[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[top_right[0]][top_right[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, bottom_left[0], bottom_left[1], height_limit, width_limit)
+                and UCS_tiles[bottom_left[0]][bottom_left[1]].expanded == False
+                and (UCS_tiles[bottom_middle[0]][bottom_middle[1]].type == 0 or UCS_tiles[bottom_middle[0]][
+                    bottom_middle[1]].type == 1)
+                and (UCS_tiles[middle_left[0]][middle_left[1]].type == 0 or UCS_tiles[middle_left[0]][
+                    middle_left[1]].type == 1)):
+            if not UCS_tiles[bottom_left[0]][bottom_left[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[bottom_left[0]][bottom_left[1]])
+                UCS_tiles[bottom_left[0]][bottom_left[1]].added_to_queue = True
+                UCS_tiles[bottom_left[0]][bottom_left[1]].distance = min(UCS_tiles[bottom_left[0]][bottom_left[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[bottom_left[0]][bottom_left[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[bottom_left[0]][bottom_left[1]].distance:
+                UCS_tiles[bottom_left[0]][bottom_left[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[bottom_left[0]][bottom_left[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, bottom_right[0], bottom_right[1], height_limit, width_limit)
+                and UCS_tiles[bottom_right[0]][bottom_right[1]].expanded == False
+                and (UCS_tiles[bottom_middle[0]][bottom_middle[1]].type == 0 or UCS_tiles[bottom_middle[0]][
+                    bottom_middle[1]].type == 1)
+                and (UCS_tiles[middle_right[0]][middle_right[1]].type == 0 or UCS_tiles[middle_right[0]][
+                    middle_right[1]].type == 1)):
+            if not UCS_tiles[bottom_right[0]][bottom_right[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[bottom_right[0]][bottom_right[1]])
+                UCS_tiles[bottom_right[0]][bottom_right[1]].added_to_queue = True
+                UCS_tiles[bottom_right[0]][bottom_right[1]].distance = min(UCS_tiles[bottom_right[0]][bottom_right[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[bottom_right[0]][bottom_right[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[bottom_right[0]][bottom_right[1]].distance:
+                UCS_tiles[bottom_right[0]][bottom_right[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[bottom_right[0]][bottom_right[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, top_middle[0], top_middle[1], height_limit, width_limit)
+                and UCS_tiles[top_middle[0]][top_middle[1]].expanded == False):
+            if not UCS_tiles[top_middle[0]][top_middle[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[top_middle[0]][top_middle[1]])
+                UCS_tiles[top_middle[0]][top_middle[1]].added_to_queue = True
+                UCS_tiles[top_middle[0]][top_middle[1]].distance = min(UCS_tiles[top_middle[0]][top_middle[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[top_middle[0]][top_middle[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[top_middle[0]][top_middle[1]].distance:
+                UCS_tiles[top_middle[0]][top_middle[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[top_middle[0]][top_middle[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, middle_right[0], middle_right[1], height_limit, width_limit)
+                and UCS_tiles[middle_right[0]][middle_right[1]].expanded == False):
+            if not UCS_tiles[middle_right[0]][middle_right[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[middle_right[0]][middle_right[1]])
+                UCS_tiles[middle_right[0]][middle_right[1]].added_to_queue = True
+                UCS_tiles[middle_right[0]][middle_right[1]].distance = min(UCS_tiles[middle_right[0]][middle_right[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[middle_right[0]][middle_right[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[middle_right[0]][middle_right[1]].distance:
+                UCS_tiles[middle_right[0]][middle_right[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[middle_right[0]][middle_right[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, bottom_middle[0], bottom_middle[1], height_limit, width_limit)
+                and UCS_tiles[bottom_middle[0]][bottom_middle[1]].expanded == False):
+            if not UCS_tiles[bottom_middle[0]][bottom_middle[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[bottom_middle[0]][bottom_middle[1]])
+                UCS_tiles[bottom_middle[0]][bottom_middle[1]].added_to_queue = True
+                UCS_tiles[bottom_middle[0]][bottom_middle[1]].distance = min(UCS_tiles[bottom_middle[0]][bottom_middle[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[bottom_middle[0]][bottom_middle[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[bottom_middle[0]][bottom_middle[1]].distance:
+                UCS_tiles[bottom_middle[0]][bottom_middle[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[bottom_middle[0]][bottom_middle[1]].prev_cell = [cur_x, cur_y]
+
+        if (tile_available(UCS_tiles, middle_left[0], middle_left[1], height_limit, width_limit)
+                and UCS_tiles[middle_left[0]][middle_left[1]].expanded == False):
+            if not UCS_tiles[middle_left[0]][middle_left[1]].added_to_queue:
+                priority_queue.append(UCS_tiles[middle_left[0]][middle_left[1]])
+                UCS_tiles[middle_left[0]][middle_left[1]].added_to_queue = True
+                UCS_tiles[middle_left[0]][middle_left[1]].distance = min(UCS_tiles[middle_left[0]][middle_left[1]].distance,
+                                                                   UCS_tiles[cur_x][cur_y].distance + 1)
+                UCS_tiles[middle_left[0]][middle_left[1]].prev_cell = [cur_x, cur_y]
+            if UCS_tiles[cur_x][cur_y].distance + 1 < UCS_tiles[middle_left[0]][middle_left[1]].distance:
+                UCS_tiles[middle_left[0]][middle_left[1]].distance = UCS_tiles[cur_x][cur_y].distance + 1
+                UCS_tiles[middle_left[0]][middle_left[1]].prev_cell = [cur_x, cur_y]
+    print("Finishing row: " + str(finishing_row))
+    print("Finishing col: " + str(finishing_col))
+    print("Finishing cell has been expanded: " + str(UCS_tiles[finishing_row][finishing_col].expanded))
+    for i in range(height):
+        str_result = ""
+        for k in range(width):
+            if UCS_tiles[i][k].distance == 999999:
+                str_result = str_result + "__ "
+            elif UCS_tiles[i][k].distance < 10:
+                str_result = str_result + "0" + str(UCS_tiles[i][k].distance) + " "
+            else:
+                str_result = str_result + str(UCS_tiles[i][k].distance) + " "
+        print(str_result)
+    solution = []
+    if UCS_tiles[finishing_row][finishing_col].expanded:
+        cur_x = finishing_row
+        cur_y = finishing_col
+        while not(cur_x == starting_row and cur_y == starting_col):
+            solution.append([cur_x, cur_y])
+            print("Add to solution: " + str(cur_x) + " " + str(cur_y))
+            temp = UCS_tiles[cur_x][cur_y]
+            cur_x = temp.prev_cell[0]
+            cur_y = temp.prev_cell[1]
+        solution.reverse()
+    return solution
 def print_level1_BFS(input_file):
     height = set_height_or_width(input_file, 0)
     width = set_height_or_width(input_file, 1)
@@ -334,21 +521,38 @@ def print_level1_BFS(input_file):
     draw_state(tiles, width, height)
     level1_BFSsolution = level1_BFS(tiles, width, height)
     draw_path(tiles, level1_BFSsolution, width, height)
+def print_level1_UCS(input_file):
+    height = set_height_or_width(input_file, 0)
+    width = set_height_or_width(input_file, 1)
+    tiles = reset_tiles(input_file, width, height)
+    draw_state(tiles, width, height)
+    level1_UCSsolution = level1_UCS(tiles, width, height)
+    draw_path(tiles, level1_UCSsolution, width, height)
 def main():
     input_file = "input1-level1.txt"
     print_level1_BFS(input_file)
     time.sleep(2)
+    print_level1_UCS(input_file)
+    time.sleep(2)
     input_file = "input2-level1.txt"
     print_level1_BFS(input_file)
+    time.sleep(2)
+    print_level1_UCS(input_file)
     time.sleep(2)
     input_file = "input3-level1.txt"
     print_level1_BFS(input_file)
     time.sleep(2)
+    print_level1_UCS(input_file)
+    time.sleep(2)
     input_file = "input4-level1.txt"
     print_level1_BFS(input_file)
     time.sleep(2)
+    print_level1_UCS(input_file)
+    time.sleep(2)
     input_file = "input5-level1.txt"
     print_level1_BFS(input_file)
+    time.sleep(2)
+    print_level1_UCS(input_file)
     running = True
     while running:
         for event in pygame.event.get():
