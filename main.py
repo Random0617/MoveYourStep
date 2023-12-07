@@ -98,43 +98,6 @@ def draw_state(tiles, width, height):
     pygame.display.flip()  # compulsory
 
 
-def draw_path(tiles, path, width, height):
-    '''
-    # Path: coordinates of the cells gone traveled through, in the correct order
-    example_path = [[1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [1, 10],
-                    [2, 10], [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10],
-                    [10, 10], [11, 10], [12, 10], [12, 9], [12, 8], [12, 7]]
-    # Call draw_path to color the solution path (in the same form as example_path)
-    # The instructor requires that the path be shown step-by-step
-    draw_path(tiles, example_path, width, height)
-    '''
-    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    TILE_WIDTH = math.floor(SCREEN_WIDTH / width)
-    TILE_HEIGHT = math.floor(SCREEN_HEIGHT / height)
-    draw_state(tiles, width, height)
-    if (len(path) > 0):
-        for i in range(len(path)):
-            time.sleep(0.1)
-            tiles[path[i][0]][path[i][1]].type = 0
-            draw_state(tiles, width, height)
-        for i in range(len(path)):
-            text = font.render(str(i + 1), True, BLACK)
-            text_width = text.get_rect().width
-            text_height = text.get_rect().height
-            text_x = (TILE_WIDTH * path[i][1] + TILE_WIDTH * (path[i][1] + 1)) / 2 - text_width / 2
-            text_y = (TILE_HEIGHT * path[i][0] + TILE_HEIGHT * (path[i][0] + 1)) / 2 - text_height / 2
-            surface.blit(text, (text_x, text_y))
-        pygame.display.flip()
-    else:
-        text = big_font.render("No solution was found.", True, BLACK)
-        text_width = text.get_rect().width
-        text_height = text.get_rect().height
-        text_x = SCREEN_WIDTH / 2 - text_width / 2
-        text_y = SCREEN_HEIGHT / 2 - text_height / 2
-        surface.blit(text, (text_x, text_y))
-        pygame.display.flip()
-
-
 def draw_heatmap_state(heatmap_tiles, width, height):
     # Reference: https://www.color-hex.com/color-palette/55783
     PATH_COLORS = [(255, 243, 59), (253, 199, 12), (243, 144, 63), (237, 104, 60), (233, 62, 58), (255, 0, 0)]
