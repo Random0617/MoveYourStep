@@ -344,6 +344,10 @@ def print_level2_BFS(input_file):
     keys = simplified_BFS(tiles, width, height)
     stacked_keys = []
     found_key_solution = False
+    if found_finish(keys):
+        found_key_solution = not found_key_solution
+        for i in range(len(keys)):
+            stacked_keys.append(keys[i])
     while len(keys) > 0 and not found_finish(keys):
         keys = simplified_BFS(tiles, width, height)
         key_string = "Keys collected this round:"
@@ -360,6 +364,8 @@ def print_level2_BFS(input_file):
             found_key_solution = not found_key_solution
     if found_key_solution:
         print("A solution exists.")
+        while stacked_keys[len(stacked_keys) - 1].value != 0:
+            stacked_keys.pop()
         tiles = level1.reset_tiles(input_file, width, height)
         checkpoints = [get_starting_cell(tiles, width, height)]
         for i in range(len(stacked_keys)):
