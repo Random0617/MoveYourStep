@@ -26,25 +26,18 @@ def main():
     '''
     input_files = ["input1-level1.txt", "input2-level1.txt", "input3-level1.txt",
                    "input4-level1.txt", "input5-level1.txt"]
-    '''
     for i in range(len(input_files)):
         input_file = input_files[i]
         level1.print_level1_BFS(input_file)
         time.sleep(3)
         level1.print_level1_UCS(input_file)
         time.sleep(3)
-    '''
     input_files = ["input1-level2.txt", "input2-level2.txt", "input3-level2.txt",
                    "input4-level2.txt", "input5-level2.txt", "input6-level2.txt"]
-    '''
     for i in range(len(input_files)):
         input_file = input_files[i]
         level2.print_level2_BFS(input_file)
         time.sleep(3)
-    '''
-    input_file = input_files[5]
-    level2.print_level2_BFS(input_file)
-    # time.sleep(3)
     running = True
     while running:
         for event in pygame.event.get():

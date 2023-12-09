@@ -1,3 +1,5 @@
+import time
+
 import level1
 
 def customized_level1_BFS(tiles, width, height, starting_row, starting_col, finishing_row, finishing_col):
@@ -384,6 +386,8 @@ def print_level2_BFS(input_file):
             for k in range(len(path)):
                 random_solution.append(path[k])
         tiles = level1.reset_tiles(input_file, width, height)
+        level1.draw_state(tiles, width, height)
+        time.sleep(0.2)
         level1.draw_heatmap_path(tiles, random_solution, width, height)
     else:
         print("No solution was found.")
