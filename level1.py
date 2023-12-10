@@ -657,6 +657,61 @@ def level1_DFS(tiles, width, height):
         solution.pop(0)
     return solution
 
+# def level1_DFS(tiles, width, height):
+#     class DFS_Tile:
+#         def __init__(self, row, col, type, visited, prev_cell):
+#             self.row = row
+#             self.col = col
+#             self.type = type  # int: 0, 1, -2, 3
+#             self.visited = visited  # bool
+#             self.prev_cell = prev_cell  # two-element array showing coordinates
+
+#     DFS_tiles = []
+#     starting_row, starting_col, finishing_row, finishing_col = -1, -1, -1, -1
+
+#     for i in range(height):
+#         row = []
+#         for k in range(width):
+#             DFStile = DFS_Tile(i, k, tiles[i][k].type, False, [-1, -1])
+#             row.append(DFStile)
+#             if tiles[i][k].type == 0:
+#                 starting_row, starting_col = i, k
+#             if tiles[i][k].type == 3:
+#                 finishing_row, finishing_col = i, k
+#         DFS_tiles.append(row)
+
+#     stack = [DFS_tiles[starting_row][starting_col]]
+#     DFS_tiles[starting_row][starting_col].visited = True
+
+#     while stack:
+#         visiting_cell = stack.pop()
+#         cur_x, cur_y = visiting_cell.row, visiting_cell.col
+
+#         neighbors = [
+#             [cur_x - 1, cur_y - 1], [cur_x - 1, cur_y], [cur_x - 1, cur_y + 1],
+#             [cur_x, cur_y - 1], [cur_x, cur_y + 1],
+#             [cur_x + 1, cur_y - 1], [cur_x + 1, cur_y], [cur_x + 1, cur_y + 1]
+#         ]
+
+#         for neighbor in neighbors:
+#             n_row, n_col = neighbor
+#             if 0 <= n_row < height and 0 <= n_col < width and not DFS_tiles[n_row][n_col].visited and tiles[n_row][n_col].type != -2:
+#                 if (cur_x == n_row or cur_y == n_col) or (tiles[cur_x][n_col].type != -2 and tiles[n_row][cur_y].type != -2):
+#                     stack.append(DFS_tiles[n_row][n_col])
+#                     DFS_tiles[n_row][n_col].visited = True
+#                     DFS_tiles[n_row][n_col].prev_cell = [cur_x, cur_y]
+
+#     solution = []
+#     if DFS_tiles[finishing_row][finishing_col].visited:
+#         cur_x, cur_y = finishing_row, finishing_col
+#         while not (cur_x == starting_row and cur_y == starting_col):
+#             solution.append([cur_x, cur_y])
+#             temp = DFS_tiles[cur_x][cur_y]
+#             cur_x, cur_y = temp.prev_cell[0], temp.prev_cell[1]
+#         solution.reverse()
+
+#     return solution
+
 def heuristic(cur_row, cur_col, dest_row, dest_col):
     return max(abs(dest_row - cur_row), abs(dest_col - cur_col))
 
