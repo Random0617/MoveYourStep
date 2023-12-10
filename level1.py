@@ -653,6 +653,8 @@ def level1_DFS(tiles, width, height):
             DFS_Tiles[neighbors[index][0]][neighbors[index][1]].visited = True
             print("Append element")
             print("DFS solution: " + str(solution))
+    if len(solution) > 0:
+        solution.pop(0)
     return solution
 
 def print_level1_BFS(input_file):
