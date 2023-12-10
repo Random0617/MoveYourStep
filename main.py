@@ -2,6 +2,8 @@ import pygame
 import time
 import level1
 import level2
+import level1Astar
+
 
 def main():
     '''
@@ -24,6 +26,7 @@ def main():
     time.sleep(2)
     # END OF HEATMAP EXAMPLE (please comment out this block of code when you start testing level 2)
     '''
+    # level3Astar.run("input1-level1.txt")
     input_files = ["input1-level1.txt", "input2-level1.txt", "input3-level1.txt",
                    "input4-level1.txt", "input5-level1.txt"]
     for i in range(len(input_files)):
@@ -34,8 +37,9 @@ def main():
         time.sleep(3)
         level1.print_level1_UCS(input_file)
         time.sleep(3)
-        level1.print_level1_Astar(input_file)
+        level1Astar.run(input_file)
         time.sleep(3)
+    
     input_files = ["input1-level2.txt", "input2-level2.txt", "input3-level2.txt",
                    "input4-level2.txt", "input5-level2.txt", "input6-level2.txt"]
     for i in range(len(input_files)):
