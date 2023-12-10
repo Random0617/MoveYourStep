@@ -27,8 +27,6 @@ def main():
     time.sleep(2)
     # END OF HEATMAP EXAMPLE (please comment out this block of code when you start testing level 2)
     '''
-    level3.run()
-    '''
     input_files = ["input1-level1.txt", "input2-level1.txt", "input3-level1.txt",
                    "input4-level1.txt", "input5-level1.txt"]
     for i in range(len(input_files)):
@@ -48,7 +46,7 @@ def main():
         input_file = input_files[i]
         level2.print_level2_BFS(input_file)
         time.sleep(3)
-    '''
+
     running = True
     while running:
         for event in pygame.event.get():
