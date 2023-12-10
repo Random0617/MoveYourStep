@@ -108,15 +108,27 @@ def level3AStar(a, f, n, m, start_id):
     return []
 
 def run():
-    N, M = map(int, input().split(','))
-    tmp = input()
+    cnt_line = -1
+    N = 0
+    M = 0
+    F = 0
     ar = []
-    for i in range(0, N):
-        b = input().split(',')
-        ar.append(b)
-    arr = np.array([ar])
+    arr = []
+    with open('input1-level3.txt', 'r') as file:
+        for line in file:
+            if cnt_line == -1:
+                N, M = map(int, line.split(','))
+            if cnt_line == 0:
+                ar = []
+                F += 1
+            if cnt_line > 0:
+                ar.append(line.strip().split(','))
+            cnt_line += 1
+            if cnt_line == N + 1:
+                arr.append(ar)
+                cnt_line = 0
 
-    Path = level3AStar(arr, 1, N, M, 1)
-    print('ok')
-    for p in Path:
+    MAP = np.array(arr)
+    path = level3AStar(MAP, F, N, M, 1)
+    for p in path:
         print(p)
