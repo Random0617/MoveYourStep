@@ -584,6 +584,76 @@ def level1_UCS(tiles, width, height):
         solution.reverse()
     return solution
 
+def level1_DFS(tiles, width, height):
+    class DFS_Tile:
+        def __init__(self, row, col, type, visited, prev_cell):
+            self.row = row
+            self.col = col
+            self.type = type  # int: 0, 1, -2, 3
+            self.visited = visited  # bool
+            self.prev_cell = prev_cell
+
+    DFS_Tiles = []
+    starting_row = -1
+    starting_col = -1
+    finishing_row = -1
+    finishing_col = -1
+    for i in range(height):
+        row = []
+        for k in range(width):
+            single_DFS_tile = DFS_Tile(i, k, tiles[i][k].type, False, [-1, -1])
+            row.append(single_DFS_tile)
+            if tiles[i][k].type == 0:
+                starting_row = i
+                starting_col = k
+            if tiles[i][k].type == 3:
+                finishing_row = i
+                finishing_col = k
+        DFS_Tiles.append(row)
+    print(str(starting_row) + " " + str(starting_col))
+    print(str(finishing_row) + " " + str(finishing_col))
+    cur_x = starting_row
+    cur_y = starting_col
+    solution = [[cur_x, cur_y]]
+    DFS_Tiles[cur_x][cur_y].visited = True
+    while (len(solution) > 0 and
+           not(solution[len(solution) - 1][0] == finishing_row and solution[len(solution) - 1][1] == finishing_col)):
+        cur_x = solution[len(solution) - 1][0]
+        cur_y = solution[len(solution) - 1][1]
+        top_left = [cur_x - 1, cur_y - 1]
+        top_middle = [cur_x - 1, cur_y]
+        top_right = [cur_x - 1, cur_y + 1]
+        middle_left = [cur_x, cur_y - 1]
+        middle_right = [cur_x, cur_y + 1]
+        bottom_left = [cur_x + 1, cur_y - 1]
+        bottom_middle = [cur_x + 1, cur_y]
+        bottom_right = [cur_x + 1, cur_y + 1]
+        neighbors = [top_left, top_middle, top_right, middle_left, middle_right,
+                     bottom_left, bottom_middle, bottom_right]
+        index = 0
+
+        while (index < len(neighbors) and
+               ((not tile_available(DFS_Tiles, neighbors[index][0], neighbors[index][1], height, width))
+                or (DFS_Tiles[neighbors[index][0]][neighbors[index][1]].visited == True)
+               or (neighbors[index] == top_left and (not tile_available(DFS_Tiles, top_middle[0], top_middle[1], height, width)
+                                                     or not tile_available(DFS_Tiles, middle_left[0], middle_left[1], height, width)))
+               or (neighbors[index] == top_right and (not tile_available(DFS_Tiles, top_middle[0], top_middle[1], height, width)
+                                                     or not tile_available(DFS_Tiles, middle_right[0], middle_right[1], height, width)))
+               or (neighbors[index] == bottom_left and (not tile_available(DFS_Tiles, bottom_middle[0], bottom_middle[1], height, width)
+                                                     or not tile_available(DFS_Tiles, middle_left[0], middle_left[1], height, width)))
+               or (neighbors[index] == bottom_right and (not tile_available(DFS_Tiles, bottom_middle[0], bottom_middle[1], height, width)
+                                                     or not tile_available(DFS_Tiles, middle_right[0], middle_right[1], height, width))))):
+            index += 1
+        if index == len(neighbors):
+            solution.pop()
+            print("Removed last element")
+            print("DFS solution: " + str(solution))
+        else:
+            solution.append([neighbors[index][0], neighbors[index][1]])
+            DFS_Tiles[neighbors[index][0]][neighbors[index][1]].visited = True
+            print("Append element")
+            print("DFS solution: " + str(solution))
+    return solution
 
 def print_level1_BFS(input_file):
     height = set_height_or_width(input_file, 0)
@@ -593,7 +663,6 @@ def print_level1_BFS(input_file):
     level1_BFSsolution = level1_BFS(tiles, width, height)
     draw_heatmap_path(tiles, level1_BFSsolution, width, height)
 
-
 def print_level1_UCS(input_file):
     height = set_height_or_width(input_file, 0)
     width = set_height_or_width(input_file, 1)
@@ -601,3 +670,11 @@ def print_level1_UCS(input_file):
     draw_state(tiles, width, height)
     level1_UCSsolution = level1_UCS(tiles, width, height)
     draw_heatmap_path(tiles, level1_UCSsolution, width, height)
+
+def print_level1_DFS(input_file):
+    height = set_height_or_width(input_file, 0)
+    width = set_height_or_width(input_file, 1)
+    tiles = reset_tiles(input_file, width, height)
+    draw_state(tiles, width, height)
+    level1_DFSsolution = level1_DFS(tiles, width, height)
+    draw_heatmap_path(tiles, level1_DFSsolution, width, height)
