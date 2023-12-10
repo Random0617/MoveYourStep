@@ -30,9 +30,11 @@ def main():
         input_file = input_files[i]
         level1.print_level1_BFS(input_file)
         time.sleep(3)
+        level1.print_level1_DFS(input_file)
+        time.sleep(3)
         level1.print_level1_UCS(input_file)
         time.sleep(3)
-        level1.print_level1_DFS(input_file)
+        level1.print_level1_Astar(input_file)
         time.sleep(3)
     input_files = ["input1-level2.txt", "input2-level2.txt", "input3-level2.txt",
                    "input4-level2.txt", "input5-level2.txt", "input6-level2.txt"]
